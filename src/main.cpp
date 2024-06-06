@@ -1,24 +1,18 @@
-/*
-   An example that demonstrates most capabilities of Espalexa v2.4.0
-*/
-#ifdef ARDUINO_ARCH_ESP32
+#include <Arduino.h>
 #include <WiFi.h>
-#else
-#include <ESP8266WiFi.h>
-#endif
-//#define ESPALEXA_ASYNC            //uncomment for async operation (can fix empty body issue)
-//#define ESPALEXA_NO_SUBPAGE       //disable /espalexa status page
-//#define ESPALEXA_DEBUG            //activate debug serial logging
-//#define ESPALEXA_MAXDEVICES 15    //set maximum devices add-able to Espalexa
+// #define ESPALEXA_ASYNC            //uncomment for async operation (can fix empty body issue)
+// #define ESPALEXA_NO_SUBPAGE       //disable /espalexa status page
+// #define ESPALEXA_DEBUG            //activate debug serial logging
+// #define ESPALEXA_MAXDEVICES 15    //set maximum devices add-able to Espalexa
 #include <Espalexa.h>
 #include <FastLED.h>
 
 // Change this!!
-const char* ssid = "Zaffari 2.4GHz";
-const char* password = "zaffari87";
+const char *ssid = "";
+const char *password = "";
 
-#define NUM_LEDS 36
-#define DATA_PIN 15
+#define NUM_LEDS 38
+#define DATA_PIN 12
 #define COLOR_ORDER BRG
 
 // This is an array of leds.  One item for each led in your strip.
@@ -27,11 +21,11 @@ CRGB leds[NUM_LEDS];
 // prototypes
 bool connectWifi();
 
-//callback functions
-void deskLedStrip(EspalexaDevice* dev);
+// callback functions
+void deskLedStrip(EspalexaDevice *dev);
 
-//create devices yourself
-EspalexaDevice* epsilon;
+// create devices yourself
+EspalexaDevice *epsilon;
 
 bool wifiConnected = false;
 
@@ -40,25 +34,31 @@ Espalexa espalexa;
 void setup()
 {
   Serial.begin(115200);
+  Serial.print("SSID: ");
+  Serial.println(ssid);
+  Serial.print("PASSWORD: ");
+  Serial.println(password);
   // Initialise wifi connection
   wifiConnected = connectWifi();
 
-  if (!wifiConnected) {
-    while (1) {
+  if (!wifiConnected)
+  {
+    while (1)
+    {
       Serial.println("Cannot connect to WiFi. Please check data and reset the ESP.");
       delay(2500);
     }
   }
 
   // Define your devices here.
-  espalexa.addDevice("Led mesa", deskLedStrip, EspalexaDeviceType::color); //color device
+  espalexa.addDevice("Led mesa", deskLedStrip, EspalexaDeviceType::color); // color device
 
-
-  EspalexaDevice* d = espalexa.getDevice(0); //this will get "Led mesa", the index is zero-based
-  d->setPercent(50); //set value "brightness" in percent
+  EspalexaDevice *d = espalexa.getDevice(0); // this will get "Led mesa", the index is zero-based
+  d->setPercent(50);                         // set value "brightness" in percent
 
   FastLED.addLeds<WS2811, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-  for (int i = 0; i < NUM_LEDS; i++) {
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
     leds[i] = CRGB::Black;
   }
   FastLED.show();
@@ -72,10 +72,10 @@ void loop()
   delay(1);
 }
 
-
-void deskLedStrip(EspalexaDevice* d)
+void deskLedStrip(EspalexaDevice *d)
 {
-  if (d == nullptr) return;
+  if (d == nullptr)
+    return;
 
   Serial.print("D changed to ");
   Serial.print(d->getValue());
@@ -86,13 +86,12 @@ void deskLedStrip(EspalexaDevice* d)
   Serial.print(", B");
   Serial.println(d->getB());
 
-
-  for (int i = 0; i < NUM_LEDS; i++) {
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
     leds[i] = CRGB(d->getR(), d->getG(), d->getB());
   }
   FastLED.setBrightness(d->getValue());
   FastLED.show();
-
 
   /*//alternative
     uint32_t rgb = d->getRGB();
@@ -102,7 +101,8 @@ void deskLedStrip(EspalexaDevice* d)
 }
 
 // connect to wifi – returns true if successful or false if not
-bool connectWifi() {
+bool connectWifi()
+{
   bool state = true;
   int i = 0;
 
@@ -113,22 +113,27 @@ bool connectWifi() {
 
   // Wait for connection
   Serial.print("Connecting...");
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print(".");
-    if (i > 20) {
-      state = false; break;
+    if (i > 20)
+    {
+      state = false;
+      break;
     }
     i++;
   }
   Serial.println("");
-  if (state) {
+  if (state)
+  {
     Serial.print("Connected to ");
     Serial.println(ssid);
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
   }
-  else {
+  else
+  {
     Serial.println("Connection failed.");
   }
   return state;
