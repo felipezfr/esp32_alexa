@@ -38,6 +38,14 @@ void setup()
   Serial.println(ssid);
   Serial.print("PASSWORD: ");
   Serial.println(password);
+
+  FastLED.addLeds<WS2811, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+
   // Initialise wifi connection
   wifiConnected = connectWifi();
 
@@ -55,13 +63,7 @@ void setup()
 
   EspalexaDevice *d = espalexa.getDevice(0); // this will get "Led mesa", the index is zero-based
   d->setPercent(50);                         // set value "brightness" in percent
-
-  FastLED.addLeds<WS2811, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-  for (int i = 0; i < NUM_LEDS; i++)
-  {
-    leds[i] = CRGB::Black;
-  }
-  FastLED.show();
+  d->setColor(254, 221, 80);
 
   espalexa.begin();
 }
